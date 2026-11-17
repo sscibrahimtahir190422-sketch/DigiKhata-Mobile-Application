@@ -1,3 +1,4 @@
+import 'package:digikhata/core/widgets/premium_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -90,96 +91,98 @@ class _EditTransactionViewState extends State<EditTransactionView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Transaction')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            const Text(
-              'Transaction Type',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(
-                  value: 'credit',
-                  label: Text('Credit'),
-                  icon: Icon(Icons.shopping_bag_outlined),
+    return PremiumEntrance(
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Edit Transaction')),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const Text(
+                'Transaction Type',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
                 ),
-                ButtonSegment(
-                  value: 'payment',
-                  label: Text('Payment'),
-                  icon: Icon(Icons.payments_outlined),
+              ),
+              const SizedBox(height: 12),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(
+                    value: 'credit',
+                    label: Text('Credit'),
+                    icon: Icon(Icons.shopping_bag_outlined),
+                  ),
+                  ButtonSegment(
+                    value: 'payment',
+                    label: Text('Payment'),
+                    icon: Icon(Icons.payments_outlined),
+                  ),
+                ],
+                selected: {_selectedType},
+                onSelectionChanged: (selection) {
+                  setState(() => _selectedType = selection.first);
+                },
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-              ],
-              selected: {_selectedType},
-              onSelectionChanged: (selection) {
-                setState(() => _selectedType = selection.first);
-              },
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+                decoration: const InputDecoration(
+                  labelText: 'Amount in PKR',
+                  prefixText: 'Rs. ',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  final amount = double.tryParse(value?.trim() ?? '');
+                  if (amount == null || !amount.isFinite || amount <= 0) {
+                    return 'Enter an amount greater than zero.';
+                  }
+                  return null;
+                },
               ),
-              decoration: const InputDecoration(
-                labelText: 'Amount in PKR',
-                prefixText: 'Rs. ',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 3,
+                maxLength: 200,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'e.g. Grocery items or partial payment',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(),
+                ),
               ),
-              validator: (value) {
-                final amount = double.tryParse(value?.trim() ?? '');
-                if (amount == null || !amount.isFinite || amount <= 0) {
-                  return 'Enter an amount greater than zero.';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _descriptionController,
-              maxLines: 3,
-              maxLength: 200,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'e.g. Grocery items or partial payment',
-                alignLabelWithHint: true,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Obx(
-              () => SizedBox(
-                height: 54,
-                child: ElevatedButton.icon(
-                  onPressed: _controller.isSaving.value ? null : _save,
-                  icon: _controller.isSaving.value
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.save_rounded),
-                  label: Text(
-                    _controller.isSaving.value
-                        ? 'Saving Changes...'
-                        : 'Save Changes',
+              const SizedBox(height: 24),
+              Obx(
+                () => SizedBox(
+                  height: 54,
+                  child: ElevatedButton.icon(
+                    onPressed: _controller.isSaving.value ? null : _save,
+                    icon: _controller.isSaving.value
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save_rounded),
+                    label: Text(
+                      _controller.isSaving.value
+                          ? 'Saving Changes...'
+                          : 'Save Changes',
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

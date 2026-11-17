@@ -1,9 +1,13 @@
+import '../../../core/services/realtime_watch.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 
 import '../models/dashboard_summary.dart';
 import '../repositories/dashboard_repository.dart';
 
 class DashboardViewModel extends GetxController {
+  RealtimeWatch? _realtime;
+
   DashboardViewModel(this._repository);
 
   final DashboardRepository _repository;
@@ -18,6 +22,19 @@ class DashboardViewModel extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _realtime = RealtimeWatch(Supabase.instance.client);
+    _realtime!.watch(table: 'customers', onChange: () => loadDashboard());
+    _realtime!.watch(
+      table: 'khata_transactions',
+      onChange: () => loadDashboard(),
+    );
+    _realtime!.watch(table: 'products', onChange: () => loadDashboard());
+    _realtime!.watch(table: 'suppliers', onChange: () => loadDashboard());
+    _realtime!.watch(
+      table: 'supplier_transactions',
+      onChange: () => loadDashboard(),
+    );
+
     loadDashboard();
   }
 
@@ -41,5 +58,11 @@ class DashboardViewModel extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    _realtime?.dispose();
+    super.onClose();
   }
 }

@@ -11,4 +11,10 @@ class AppRoutes {
   static const editKhataTransaction = '/khata/edit-transaction';
   static const archivedCustomers = '/customers/archived';
   static const customerStatement = '/customers/statement';
+  static const inventory = '/inventory';
+  static const payments = '/payments';
+  static const reports = '/reports';
+  static const settings = '/settings';
+  static const suppliers = '/suppliers';
+  static const resetPassword = '/reset-password';
 }

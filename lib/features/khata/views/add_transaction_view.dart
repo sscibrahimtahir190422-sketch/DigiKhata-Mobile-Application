@@ -1,3 +1,4 @@
+import 'package:digikhata/core/widgets/premium_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
@@ -83,241 +84,246 @@ class _AddTransactionViewState extends State<AddTransactionView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add Khata Entry')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            // Customer information
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.lightGreen,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
+    return PremiumEntrance(
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Add Khata Entry')),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              // Customer information
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGreen,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: AppTheme.primaryGreen,
+                        size: 26,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.person_outline_rounded,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'CUSTOMER',
+                            style: TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _customerName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppTheme.darkGreen,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.verified_user_outlined,
                       color: AppTheme.primaryGreen,
-                      size: 26,
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CUSTOMER',
-                          style: TextStyle(
-                            color: AppTheme.textSecondary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _customerName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppTheme.darkGreen,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              const Text(
+                'Transaction Type',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Choose the type of entry you want to record.',
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 14),
+
+              Obx(() {
+                final isCredit = _selectedType.value == 'credit';
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _TransactionTypeCard(
+                        title: 'Credit Given',
+                        subtitle: 'Customer owes you',
+                        icon: Icons.shopping_bag_outlined,
+                        color: AppTheme.danger,
+                        background: const Color(0xFFFFEEEE),
+                        selected: isCredit,
+                        onTap: () => _selectedType.value = 'credit',
+                      ),
                     ),
-                  ),
-                  const Icon(
-                    Icons.verified_user_outlined,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _TransactionTypeCard(
+                        title: 'Payment',
+                        subtitle: 'Money received',
+                        icon: Icons.payments_outlined,
+                        color: AppTheme.success,
+                        background: AppTheme.lightGreen,
+                        selected: !isCredit,
+                        onTap: () => _selectedType.value = 'payment',
+                      ),
+                    ),
+                  ],
+                );
+              }),
+
+              const SizedBox(height: 28),
+
+              const Text(
+                'Transaction Amount',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: const TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+                decoration: const InputDecoration(
+                  labelText: 'Amount in PKR',
+                  hintText: '0.00',
+                  prefixText: 'Rs. ',
+                  prefixIcon: Icon(
+                    Icons.currency_exchange_rounded,
                     color: AppTheme.primaryGreen,
                   ),
-                ],
+                ),
+                validator: (value) {
+                  final amount = double.tryParse(value?.trim() ?? '');
+
+                  if (amount == null || !amount.isFinite || amount <= 0) {
+                    return 'Enter an amount greater than zero.';
+                  }
+
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 28),
+              const SizedBox(height: 24),
 
-            const Text(
-              'Transaction Type',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
+              const Text(
+                'Description',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Choose the type of entry you want to record.',
-              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-            ),
-            const SizedBox(height: 14),
+              const SizedBox(height: 6),
+              const Text(
+                'Add a note to help identify this transaction.',
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 12),
 
-            Obx(() {
-              final isCredit = _selectedType.value == 'credit';
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 3,
+                maxLength: 200,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Grocery items or partial payment',
+                  alignLabelWithHint: true,
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 44),
+                    child: Icon(
+                      Icons.notes_rounded,
+                      color: AppTheme.primaryGreen,
+                    ),
+                  ),
+                ),
+              ),
 
-              return Row(
+              const SizedBox(height: 16),
+
+              Obx(
+                () => SizedBox(
+                  height: 54,
+                  child: ElevatedButton.icon(
+                    onPressed: _controller.isLoading.value
+                        ? null
+                        : _saveTransaction,
+                    icon: _controller.isLoading.value
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save_rounded),
+                    label: Text(
+                      _controller.isLoading.value
+                          ? 'Saving Transaction...'
+                          : 'Save Transaction',
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: _TransactionTypeCard(
-                      title: 'Credit Given',
-                      subtitle: 'Customer owes you',
-                      icon: Icons.shopping_bag_outlined,
-                      color: AppTheme.danger,
-                      background: const Color(0xFFFFEEEE),
-                      selected: isCredit,
-                      onTap: () => _selectedType.value = 'credit',
-                    ),
+                  Icon(
+                    Icons.lock_outline_rounded,
+                    size: 15,
+                    color: AppTheme.textSecondary,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _TransactionTypeCard(
-                      title: 'Payment',
-                      subtitle: 'Money received',
-                      icon: Icons.payments_outlined,
-                      color: AppTheme.success,
-                      background: AppTheme.lightGreen,
-                      selected: !isCredit,
-                      onTap: () => _selectedType.value = 'payment',
+                  SizedBox(width: 6),
+                  Text(
+                    'Check the amount before saving.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
                     ),
                   ),
                 ],
-              );
-            }),
-
-            const SizedBox(height: 28),
-
-            const Text(
-              'Transaction Amount',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
               ),
-            ),
-            const SizedBox(height: 12),
-
-            TextFormField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              style: const TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
-              decoration: const InputDecoration(
-                labelText: 'Amount in PKR',
-                hintText: '0.00',
-                prefixText: 'Rs. ',
-                prefixIcon: Icon(
-                  Icons.currency_exchange_rounded,
-                  color: AppTheme.primaryGreen,
-                ),
-              ),
-              validator: (value) {
-                final amount = double.tryParse(value?.trim() ?? '');
-
-                if (amount == null || !amount.isFinite || amount <= 0) {
-                  return 'Enter an amount greater than zero.';
-                }
-
-                return null;
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            const Text(
-              'Description',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Add a note to help identify this transaction.',
-              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-            ),
-            const SizedBox(height: 12),
-
-            TextFormField(
-              controller: _descriptionController,
-              maxLines: 3,
-              maxLength: 200,
-              decoration: const InputDecoration(
-                hintText: 'e.g. Grocery items or partial payment',
-                alignLabelWithHint: true,
-                prefixIcon: Padding(
-                  padding: EdgeInsets.only(bottom: 44),
-                  child: Icon(
-                    Icons.notes_rounded,
-                    color: AppTheme.primaryGreen,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Obx(
-              () => SizedBox(
-                height: 54,
-                child: ElevatedButton.icon(
-                  onPressed: _controller.isLoading.value
-                      ? null
-                      : _saveTransaction,
-                  icon: _controller.isLoading.value
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.save_rounded),
-                  label: Text(
-                    _controller.isLoading.value
-                        ? 'Saving Transaction...'
-                        : 'Save Transaction',
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lock_outline_rounded,
-                  size: 15,
-                  color: AppTheme.textSecondary,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  'Check the amount before saving.',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

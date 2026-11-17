@@ -1,3 +1,5 @@
+import '../../../core/services/realtime_watch.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../customers/models/customer.dart';
@@ -8,6 +10,8 @@ import '../repositories/khata_repository.dart';
 enum TransactionDateFilter { allTime, today, last7Days, last30Days, custom }
 
 class KhataViewModel extends GetxController {
+  RealtimeWatch? _realtime;
+
   KhataViewModel(this._repository, this.customerId);
 
   final KhataRepository _repository;
@@ -25,6 +29,12 @@ class KhataViewModel extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _realtime = RealtimeWatch(Supabase.instance.client);
+    _realtime!.watch(
+      table: 'khata_transactions',
+      onChange: () => loadTransactions(),
+    );
+
     loadTransactions();
   }
 
@@ -323,5 +333,11 @@ class KhataViewModel extends GetxController {
     debugPrint('Error type: ${error.runtimeType}');
     debugPrint('Error details: $error');
     debugPrintStack(stackTrace: stackTrace);
+  }
+
+  @override
+  void onClose() {
+    _realtime?.dispose();
+    super.onClose();
   }
 }

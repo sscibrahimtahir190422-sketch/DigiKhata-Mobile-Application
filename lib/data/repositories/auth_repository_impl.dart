@@ -16,6 +16,19 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+  }) {
+    return _supabase.auth.signUp(email: email, password: password);
+  }
+
+  @override
+  Future<void> sendPasswordReset(String email) async {
+    await _supabase.auth.resetPasswordForEmail(email);
+  }
+
+  @override
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }

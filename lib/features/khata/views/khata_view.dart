@@ -1,3 +1,4 @@
+import 'package:digikhata/core/widgets/premium_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -16,199 +17,201 @@ class KhataView extends GetView<KhataViewModel> {
     final arguments = Get.arguments as Map?;
     final customerName = arguments?['customerName'] as String? ?? 'Customer';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("$customerName's Khata"),
-        actions: [
-          IconButton(
-            tooltip: 'Refresh',
-            onPressed: controller.loadTransactions,
-            icon: const Icon(Icons.refresh_rounded),
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: Obx(() {
-        if (controller.isLoading.value && controller.transactions.isEmpty) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryGreen),
-          );
-        }
+    return PremiumEntrance(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("$customerName's Khata"),
+          actions: [
+            IconButton(
+              tooltip: 'Refresh',
+              onPressed: controller.loadTransactions,
+              icon: const Icon(Icons.refresh_rounded),
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
+        body: Obx(() {
+          if (controller.isLoading.value && controller.transactions.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+            );
+          }
 
-        if (controller.errorMessage.value != null &&
-            controller.transactions.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.cloud_off_rounded,
-                    size: 48,
-                    color: AppTheme.danger,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    controller.errorMessage.value!,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: controller.loadTransactions,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Try Again'),
-                  ),
-                ],
+          if (controller.errorMessage.value != null &&
+              controller.transactions.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.cloud_off_rounded,
+                      size: 48,
+                      color: AppTheme.danger,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      controller.errorMessage.value!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: controller.loadTransactions,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try Again'),
+                    ),
+                  ],
+                ),
               ),
+            );
+          }
+
+          final filteredTransactions = controller.filteredTransactions;
+
+          return RefreshIndicator(
+            color: AppTheme.primaryGreen,
+            onRefresh: controller.loadTransactions,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+              children: [
+                _BalanceCard(
+                  customerName: customerName,
+                  balance: controller.outstandingBalance,
+                ),
+                const SizedBox(height: 16),
+
+                // Complete account totals.
+                Row(
+                  children: [
+                    Expanded(
+                      child: _SummaryCard(
+                        title: 'Total Credit',
+                        amount: controller.totalCredit,
+                        icon: Icons.shopping_bag_outlined,
+                        color: AppTheme.danger,
+                        background: const Color(0xFFFFEEEE),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _SummaryCard(
+                        title: 'Total Paid',
+                        amount: controller.totalPayments,
+                        icon: Icons.payments_outlined,
+                        color: AppTheme.success,
+                        background: AppTheme.lightGreen,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Transaction history heading.
+                const Text(
+                  'Transaction History',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Date filter.
+                _DateFilterCard(controller: controller),
+                const SizedBox(height: 16),
+
+                // Totals for the selected period.
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PeriodSummaryCard(
+                        title: 'Period Credit',
+                        amount: controller.filteredCredit,
+                        color: AppTheme.danger,
+                        icon: Icons.trending_up_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _PeriodSummaryCard(
+                        title: 'Period Paid',
+                        amount: controller.filteredPayments,
+                        color: AppTheme.success,
+                        icon: Icons.trending_down_rounded,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        controller.dateFilterLabel,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightGreen,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${filteredTransactions.length} entries',
+                        style: const TextStyle(
+                          color: AppTheme.darkGreen,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                if (filteredTransactions.isEmpty)
+                  const _EmptyTransactions()
+                else
+                  ...filteredTransactions.map(
+                    (transaction) => _TransactionTile(
+                      transaction: transaction,
+                      onEdit: () => _editTransaction(transaction),
+                      onDelete: () => _confirmDelete(transaction),
+                      onShare: () => _shareReceipt(transaction),
+                      onPreviewPdf: () => _previewPdfReceipt(transaction),
+                      isBusy: controller.isSaving,
+                    ),
+                  ),
+              ],
             ),
           );
-        }
+        }),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            await Get.toNamed(
+              AppRoutes.addKhataTransaction,
+              arguments: {
+                'customerId': controller.customerId,
+                'customerName': customerName,
+              },
+            );
 
-        final filteredTransactions = controller.filteredTransactions;
-
-        return RefreshIndicator(
-          color: AppTheme.primaryGreen,
-          onRefresh: controller.loadTransactions,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            children: [
-              _BalanceCard(
-                customerName: customerName,
-                balance: controller.outstandingBalance,
-              ),
-              const SizedBox(height: 16),
-
-              // Complete account totals.
-              Row(
-                children: [
-                  Expanded(
-                    child: _SummaryCard(
-                      title: 'Total Credit',
-                      amount: controller.totalCredit,
-                      icon: Icons.shopping_bag_outlined,
-                      color: AppTheme.danger,
-                      background: const Color(0xFFFFEEEE),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _SummaryCard(
-                      title: 'Total Paid',
-                      amount: controller.totalPayments,
-                      icon: Icons.payments_outlined,
-                      color: AppTheme.success,
-                      background: AppTheme.lightGreen,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Transaction history heading.
-              const Text(
-                'Transaction History',
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Date filter.
-              _DateFilterCard(controller: controller),
-              const SizedBox(height: 16),
-
-              // Totals for the selected period.
-              Row(
-                children: [
-                  Expanded(
-                    child: _PeriodSummaryCard(
-                      title: 'Period Credit',
-                      amount: controller.filteredCredit,
-                      color: AppTheme.danger,
-                      icon: Icons.trending_up_rounded,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _PeriodSummaryCard(
-                      title: 'Period Paid',
-                      amount: controller.filteredPayments,
-                      color: AppTheme.success,
-                      icon: Icons.trending_down_rounded,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      controller.dateFilterLabel,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightGreen,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${filteredTransactions.length} entries',
-                      style: const TextStyle(
-                        color: AppTheme.darkGreen,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              if (filteredTransactions.isEmpty)
-                const _EmptyTransactions()
-              else
-                ...filteredTransactions.map(
-                  (transaction) => _TransactionTile(
-                    transaction: transaction,
-                    onEdit: () => _editTransaction(transaction),
-                    onDelete: () => _confirmDelete(transaction),
-                    onShare: () => _shareReceipt(transaction),
-                    onPreviewPdf: () => _previewPdfReceipt(transaction),
-                    isBusy: controller.isSaving,
-                  ),
-                ),
-            ],
-          ),
-        );
-      }),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Get.toNamed(
-            AppRoutes.addKhataTransaction,
-            arguments: {
-              'customerId': controller.customerId,
-              'customerName': customerName,
-            },
-          );
-
-          await controller.loadTransactions();
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Entry'),
+            await controller.loadTransactions();
+          },
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Add Entry'),
+        ),
       ),
     );
   }

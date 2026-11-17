@@ -19,23 +19,32 @@ class KhataRepositoryImpl implements KhataRepository {
       throw Exception('Please sign in to view transactions.');
     }
 
-    final response = await _supabase
-        .from('khata_transactions')
-        .select('id, customer_id, type, amount, description, created_at')
-        .eq('shop_id', user.id)
-        .eq('customer_id', customerId)
-        .order('created_at', ascending: false);
-
-    return (response as List).map((row) {
-      return KhataTransaction(
-        id: row['id'] as String,
-        customerId: row['customer_id'] as String,
-        type: row['type'] as String,
-        amount: (row['amount'] as num).toDouble(),
-        description: row['description'] as String?,
-        createdAt: DateTime.parse(row['created_at'] as String),
+    const pageSize = 500;
+    final entries = <KhataTransaction>[];
+    for (var offset = 0; ; offset += pageSize) {
+      final rows = await _supabase
+          .from('khata_transactions')
+          .select('id, customer_id, type, amount, description, created_at')
+          .eq('shop_id', user.id)
+          .eq('customer_id', customerId)
+          .order('created_at', ascending: false)
+          .order('id')
+          .range(offset, offset + pageSize - 1);
+      entries.addAll(
+        rows.map(
+          (row) => KhataTransaction(
+            id: row['id'] as String,
+            customerId: row['customer_id'] as String,
+            type: row['type'] as String,
+            amount: (row['amount'] as num).toDouble(),
+            description: row['description'] as String?,
+            createdAt: DateTime.parse(row['created_at'] as String),
+          ),
+        ),
       );
-    }).toList();
+      if (rows.length < pageSize) break;
+    }
+    return entries;
   }
 
   @override

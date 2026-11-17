@@ -1,17 +1,17 @@
-# digikhata
+# DigiKhata premium UI upgrade
 
-A new Flutter project.
+## Scope
+This package includes the complete `lib/` tree based on the uploaded DigiKhata source and the previous dashboard update. All repositories, viewmodels, models, bindings, Supabase calls and routes are preserved byte-for-byte from the previous package.
 
-## Getting Started
+The shared Material 3 theme is refined for a cohesive emerald/ivory brand. Each existing screen with a direct `return Scaffold(...)` gets a presentation-only entrance animation. The dashboard keeps the previously redesigned premium layout. `lib/core/widgets/premium_ui.dart` provides reusable panels, titles, empty states, and skeletons for continued design work.
 
-This project is a starting point for a Flutter application.
+**Not a fully redesigned individual layout for every screen.** Those layouts remain largely unchanged except for theme and motion; this is intentionally conservative to protect behavior.
 
-A few resources to get you started if this is your first Flutter project:
+## Install
+1. Back up or commit your current project.
+2. Merge the `lib/` directory into the project, reviewing the diff before replacing any newer local changes.
+3. Keep your existing working `pubspec.yaml`, Android/iOS branding, and assets.
+4. Run `flutter pub get`, `dart format lib`, `flutter analyze`, `flutter test`, and `flutter run`.
+5. If analyzer errors arise, restore from your backup and send the output.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+No Flutter SDK or device test was available here, so compilation and behavioral compatibility are not certified.

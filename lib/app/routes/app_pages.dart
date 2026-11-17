@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../features/auth/bindings/auth_binding.dart';
 import '../../features/auth/views/login_view.dart';
+import '../../features/auth/views/reset_password_view.dart';
 import '../../features/customers/bindings/customer_binding.dart';
 import '../../features/customers/views/add_customer_view.dart';
 import '../../features/customers/views/archived_customers_view.dart';
@@ -13,6 +14,18 @@ import '../../features/khata/bindings/khata_binding.dart';
 import '../../features/khata/views/add_transaction_view.dart';
 import '../../features/khata/views/edit_transaction_view.dart';
 import '../../features/khata/views/khata_view.dart';
+import '../../features/inventory/bindings/inventory_binding.dart';
+import '../../features/inventory/views/inventory_view.dart';
+import '../../features/payments/bindings/payment_binding.dart';
+import '../../features/payments/views/payment_view.dart';
+import '../../features/reports/bindings/report_binding.dart';
+import '../../features/reports/views/report_view.dart';
+import '../../features/settings/bindings/settings_binding.dart';
+import '../../features/settings/views/settings_view.dart';
+import '../../features/statements/bindings/customer_statement_binding.dart';
+import '../../features/statements/views/customer_statement_view.dart';
+import '../../features/suppliers/bindings/supplier_binding.dart';
+import '../../features/suppliers/views/supplier_view.dart';
 import 'app_routes.dart';
 import 'auth_middleware.dart';
 
@@ -21,8 +34,12 @@ class AppPages {
 
   static final pages = <GetPage>[
     GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => const ResetPasswordView(),
+    ),
+    GetPage(
       name: AppRoutes.login,
-      page: () => LoginView(),
+      page: () => const LoginView(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -64,6 +81,42 @@ class AppPages {
     GetPage(
       name: AppRoutes.editKhataTransaction,
       page: () => const EditTransactionView(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.customerStatement,
+      page: () => CustomerStatementView(),
+      binding: CustomerStatementBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.inventory,
+      page: () => const InventoryView(),
+      binding: InventoryBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.payments,
+      page: () => const PaymentView(),
+      binding: PaymentBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.reports,
+      page: () => ReportView(),
+      binding: ReportBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.suppliers,
+      page: () => const SupplierView(),
+      binding: SupplierBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.settings,
+      page: () => const SettingsView(),
+      binding: SettingsBinding(),
       middlewares: [AuthMiddleware()],
     ),
     GetPage(

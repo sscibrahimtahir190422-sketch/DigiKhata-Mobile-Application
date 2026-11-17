@@ -9,43 +9,30 @@ class CustomerRepositoryImpl implements CustomerRepository {
   final SupabaseClient _supabase;
 
   @override
-  Future<List<Customer>> getCustomers() async {
-    final user = _supabase.auth.currentUser;
-
-    if (user == null) {
-      throw Exception('Please sign in to view customers.');
-    }
-
-    final response = await _supabase
-        .from('customers')
-        .select('id, name, phone, is_archived')
-        .eq('shop_id', user.id)
-        .eq('is_archived', false)
-        .order('created_at', ascending: false);
-
-    return (response as List)
-        .map((row) => Customer.fromJson(row as Map<String, dynamic>))
-        .toList();
-  }
+  Future<List<Customer>> getCustomers() => _listCustomers(archived: false);
 
   @override
-  Future<List<Customer>> getArchivedCustomers() async {
-    final user = _supabase.auth.currentUser;
+  Future<List<Customer>> getArchivedCustomers() =>
+      _listCustomers(archived: true);
 
-    if (user == null) {
-      throw Exception('User is not authenticated.');
+  Future<List<Customer>> _listCustomers({required bool archived}) async {
+    final shopId = _supabase.auth.currentUser?.id;
+    if (shopId == null) throw AuthException('Please sign in.');
+    const pageSize = 500;
+    final result = <Customer>[];
+    for (var offset = 0; ; offset += pageSize) {
+      final rows = await _supabase
+          .from('customers')
+          .select('id,name,phone,is_archived')
+          .eq('shop_id', shopId)
+          .eq('is_archived', archived)
+          .order('created_at', ascending: false)
+          .order('id')
+          .range(offset, offset + pageSize - 1);
+      result.addAll(rows.map(Customer.fromJson));
+      if (rows.length < pageSize) break;
     }
-
-    final response = await _supabase
-        .from('customers')
-        .select('id, name, phone, is_archived')
-        .eq('shop_id', user.id)
-        .eq('is_archived', true)
-        .order('created_at', ascending: false);
-
-    return (response as List)
-        .map((item) => Customer.fromJson(Map<String, dynamic>.from(item)))
-        .toList();
+    return result;
   }
 
   @override

@@ -1,10 +1,13 @@
-import 'package:get/get.dart';
+import '../../../core/services/realtime_watch.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get/get.dart';
 
 import '../models/customer.dart';
 import '../repositories/customer_repositories.dart';
 
 class CustomerViewModel extends GetxController {
+  RealtimeWatch? _realtime;
+
   CustomerViewModel(this._repository);
 
   final CustomerRepository _repository;
@@ -20,6 +23,15 @@ class CustomerViewModel extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _realtime = RealtimeWatch(Supabase.instance.client);
+    _realtime!.watch(table: 'customers', onChange: () => loadCustomers());
+    _realtime!.watch(
+      table: 'customers',
+      onChange: () {
+        loadArchivedCustomers();
+      },
+    );
+
     loadCustomers();
   }
 
@@ -154,5 +166,11 @@ class CustomerViewModel extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    _realtime?.dispose();
+    super.onClose();
   }
 }

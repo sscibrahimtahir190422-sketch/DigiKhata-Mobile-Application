@@ -1,3 +1,4 @@
+import 'package:digikhata/core/widgets/premium_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -101,83 +102,85 @@ class CustomerStatementView extends GetView<CustomerStatementViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Customer Statement'),
-        actions: [
-          Obx(
-            () => IconButton(
-              tooltip: 'Export statement PDF',
-              onPressed:
-                  controller.isLoading.value ||
-                      controller.statement.value == null
-                  ? null
-                  : _exportStatementPdf,
-              icon: const Icon(Icons.picture_as_pdf_outlined),
+    return PremiumEntrance(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Customer Statement'),
+          actions: [
+            Obx(
+              () => IconButton(
+                tooltip: 'Export statement PDF',
+                onPressed:
+                    controller.isLoading.value ||
+                        controller.statement.value == null
+                    ? null
+                    : _exportStatementPdf,
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+              ),
             ),
-          ),
-          Obx(
-            () => IconButton(
-              tooltip: 'Share Statement PDF',
-              onPressed:
-                  controller.isLoading.value ||
-                      controller.statement.value == null
-                  ? null
-                  : _shareStatementPdf,
-              icon: const Icon(Icons.share_outlined),
+            Obx(
+              () => IconButton(
+                tooltip: 'Share Statement PDF',
+                onPressed:
+                    controller.isLoading.value ||
+                        controller.statement.value == null
+                    ? null
+                    : _shareStatementPdf,
+                icon: const Icon(Icons.share_outlined),
+              ),
             ),
-          ),
-          IconButton(
-            tooltip: 'Refresh statement',
-            onPressed: controller.loadStatement,
-            icon: const Icon(Icons.refresh_rounded),
-          ),
-        ],
-      ),
-      body: Obx(() {
-        final statement = controller.statement.value;
+            IconButton(
+              tooltip: 'Refresh statement',
+              onPressed: controller.loadStatement,
+              icon: const Icon(Icons.refresh_rounded),
+            ),
+          ],
+        ),
+        body: Obx(() {
+          final statement = controller.statement.value;
 
-        if (controller.isLoading.value && statement == null) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+          if (controller.isLoading.value && statement == null) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+            );
+          }
+
+          if (controller.errorMessage.value != null && statement == null) {
+            return _buildError(controller.errorMessage.value!);
+          }
+
+          if (statement == null) {
+            return _buildError('No statement is available.');
+          }
+
+          return RefreshIndicator(
+            color: AppTheme.primaryGreen,
+            onRefresh: controller.loadStatement,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildCustomerHeader(statement),
+                const SizedBox(height: 16),
+                _buildDateRangeCard(context),
+                const SizedBox(height: 16),
+                _buildBalanceCard(statement),
+                const SizedBox(height: 16),
+                _buildSummaryCards(statement),
+                const SizedBox(height: 24),
+                _buildTransactionHeading(statement),
+                const SizedBox(height: 12),
+                if (statement.entries.isEmpty)
+                  _buildEmptyTransactions()
+                else
+                  ...statement.entries.reversed.map(
+                    (entry) => _buildTransactionTile(entry),
+                  ),
+                const SizedBox(height: 24),
+              ],
+            ),
           );
-        }
-
-        if (controller.errorMessage.value != null && statement == null) {
-          return _buildError(controller.errorMessage.value!);
-        }
-
-        if (statement == null) {
-          return _buildError('No statement is available.');
-        }
-
-        return RefreshIndicator(
-          color: AppTheme.primaryGreen,
-          onRefresh: controller.loadStatement,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _buildCustomerHeader(statement),
-              const SizedBox(height: 16),
-              _buildDateRangeCard(context),
-              const SizedBox(height: 16),
-              _buildBalanceCard(statement),
-              const SizedBox(height: 16),
-              _buildSummaryCards(statement),
-              const SizedBox(height: 24),
-              _buildTransactionHeading(statement),
-              const SizedBox(height: 12),
-              if (statement.entries.isEmpty)
-                _buildEmptyTransactions()
-              else
-                ...statement.entries.reversed.map(
-                  (entry) => _buildTransactionTile(entry),
-                ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        );
-      }),
+        }),
+      ),
     );
   }
 
