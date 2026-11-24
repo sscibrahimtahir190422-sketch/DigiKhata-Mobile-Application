@@ -53,6 +53,29 @@ By centralizing financial and operational records within a single mobile platfor
 | Bilingual Interface | English and Urdu localization for improved accessibility. |
 | Modern UI | Consistent Material 3 design with an emerald-inspired visual identity. |
 
+
+## Application Screenshots
+
+A modern, intuitive mobile experience designed around everyday business operations.
+
+<div align="center">
+
+| Authentication | Smart Dashboard | Quick Actions |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/login.jpeg" width="220"/> | <img src="docs/screenshots/dashboard.jpeg" width="220"/> | <img src="docs/screenshots/quick-actions.jpeg" width="220"/> |
+
+| Customer Management | Inventory Management | Financial Reports |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/add-customer.jpeg" width="220"/> | <img src="docs/screenshots/inventory.jpeg" width="220"/> | <img src="docs/screenshots/business-reports.jpeg" width="220"/> |
+
+| Splash Screen | Business Workspace |
+| :---: | :---: |
+| <img src="docs/screenshots/splash.jpeg" width="220"/> | <img src="docs/screenshots/business-workspace.jpeg" width="220"/> |
+
+</div>
+
+
+
 ## Technology Stack
 
 | Technology | Purpose |
