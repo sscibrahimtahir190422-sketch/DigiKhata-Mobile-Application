@@ -18,3 +18,6 @@ android/key.properties
 android/local.properties
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
+
+# Supabase CLI temporary files
+supabase/.temp/
